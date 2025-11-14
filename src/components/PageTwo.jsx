@@ -8,7 +8,10 @@ export default function PageTwo() {
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
   const [selectedStyle, setSelectedStyle] = useState(null);
+  const [personalization, setPersonalization] = useState("");
   const [error, setError] = useState("");
+  const [summary, setSummary] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleFileSelect = (e) => {
     if (e.target.files.length > 0) {
@@ -16,28 +19,40 @@ export default function PageTwo() {
     }
   };
 
-  const handleGenerate = () => {
-    // Clear previous error
+  const handleGenerate = async () => {
+    // Clear previous error and summary
     setError("");
+    setSummary("");
 
     if (!fileName && !selectedStyle) {
       setError("Please upload a file and select a TikTok style");
       return;
     }
-    if (!fileName) {
-      setError("Please upload a file");
-      return;
-    }
-    if (!selectedStyle) {
-      setError("Please select a TikTok style");
-      return;
-    }
 
-    // All required fields provided, proceed
-    console.log("File:", fileName);
-    console.log("Selected style:", selectedStyle);
-    setError(""); // clear any previous errors
-    alert("Generation started!"); // replace with real action
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", fileInputRef.current.files[0]);
+      formData.append("style", selectedStyle);
+      formData.append("personalization", personalization);
+
+      const response = await fetch("http://localhost:8000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setSummary(data.summary);
+    } catch (error) {
+      setError(`Failed to generate summary: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = [
@@ -53,7 +68,7 @@ export default function PageTwo() {
       {/* Logo */}
       <div className="absolute top-6 left-6 flex items-center gap-2 text-[#004E52] font-bold text-xl">
         <span className="text-4xl">∿</span>
-        TIKTOK MY NOTES 
+        TIKTOKIFY MY NOTES 
       </div>
 
       {/* Upload Notes */}
@@ -115,6 +130,8 @@ export default function PageTwo() {
         <input
           placeholder="Eg Make it sound stern"
           className="w-full mt-3 px-4 py-3 rounded-md bg-white border border-gray-300"
+          value={personalization}
+          onChange={(e) => setPersonalization(e.target.value)}
         />
       </div>
 
@@ -127,12 +144,21 @@ export default function PageTwo() {
       {/* Generate Button */}
       <div className="flex justify-center mt-6">
         <button
-          className="bg-[#0B5C66] text-white rounded-full text-2xl px-20 py-4 shadow-lg"
+          className="bg-[#0B5C66] text-white rounded-full text-2xl px-20 py-4 shadow-lg disabled:opacity-50"
           onClick={handleGenerate}
+          disabled={loading}
         >
-          GENERATE
+          {loading ? "GENERATING..." : "GENERATE"}
         </button>
       </div>
+
+      {/* Summary Display */}
+      {summary && (
+        <div className="bg-[#FFF8D9] rounded-2xl p-6 mt-6 max-w-2xl mx-auto">
+          <p className="text-orange-600 font-bold uppercase text-center">Generated Your Tiktok-Style Audio! Here's some things to keep in mind:</p>
+          <p className="mt-4 text-black">{summary}</p>
+        </div>
+      )}
     </div>
   );
 }

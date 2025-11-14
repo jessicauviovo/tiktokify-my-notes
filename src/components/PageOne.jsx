@@ -17,7 +17,7 @@ export default function PageOne({ onStart }) {
         {/* Left Side: Title, language dropdown, button */}
         <div className="flex flex-col items-center gap-6">
           <h1 className="text-orange-600 text-7xl md:text-8xl font-extrabold leading-[0.9] tracking-tight text-center">
-            TIKTOK<br />MY<br />NOTES
+            TIKTOKIFY<br />MY<br />NOTES
           </h1>
 
           {/* Language Dropdown */}
