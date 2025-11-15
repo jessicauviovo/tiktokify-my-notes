@@ -1,8 +1,8 @@
 import React, { useRef, useState } from "react";
-import style1 from "../assets/style1.jpg";
-import style2 from "../assets/style2.jpg";
-import style3 from "../assets/style3.jpg";
-import style4 from "../assets/style4.jpg";
+import style1 from "../assets/style1.png";
+import style2 from "../assets/style2.png";
+import style3 from "../assets/style3.png";
+import style4 from "../assets/style4.png";
 import element3 from "../assets/element3.png";
 
 export default function PageTwo({ onGoBack }) {
@@ -10,6 +10,7 @@ export default function PageTwo({ onGoBack }) {
   const [fileName, setFileName] = useState("");
   const [selectedStyle, setSelectedStyle] = useState(null);
   const [personalization, setPersonalization] = useState("");
+  const [inputLength, setInputLength] = useState(0);
   const [error, setError] = useState("");
   const [summary, setSummary] = useState("");
   const [audio, setAudio] = useState("");
@@ -17,18 +18,42 @@ export default function PageTwo({ onGoBack }) {
 
   const handleFileSelect = (e) => {
     if (e.target.files.length > 0) {
-      setFileName(e.target.files[0].name);
+      const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File size must be less than 5MB");
+        setFileName("");
+        return;
+      }
+      setFileName(file.name);
+      setError("");
     }
   };
 
+  const playClickSound = () => {
+    const audio = new Audio('/click.mp3');
+    audio.currentTime = 30;
+    audio.play();
+  };
+
   const handleGenerate = async () => {
+    playClickSound();
     // Clear previous error and summary
     setError("");
     setSummary("");
     setAudio("");
 
     if (!fileName && !selectedStyle) {
-      setError("Please upload a file and select a TikTok style");
+      setError("Make sure you upload your notes and select a TikTok style 🤠");
+      return;
+    }
+
+    if(!fileName) {
+      setError("Don't forget to upload your notes!");
+      return;
+    }
+
+    if(!selectedStyle) {
+      setError("Oops, you didn't select a TikTok style...");
       return;
     }
 
@@ -65,10 +90,10 @@ export default function PageTwo({ onGoBack }) {
   };
 
   const styles = [
-    { id: 1, label: "Style 1", image: style1 },
-    { id: 2, label: "Style 2", image: style2 },
-    { id: 3, label: "Style 3", image: style3 },
-    { id: 4, label: "Style 4", image: style4 },
+    { id: 1, label: "Soft-spoken ASMR", image: style1 },
+    { id: 2, label: "Bestie Facetime", image: style2 },
+    { id: 3, label: "Juicy Storytime", image: style3 },
+    { id: 4, label: "True Crime Story", image: style4 },
   ];
 
   return (
@@ -76,7 +101,7 @@ export default function PageTwo({ onGoBack }) {
 
       {/* Logo */}
       <div
-        className="absolute top-6 left-6 flex items-center gap-2 text-[#004E52] font-quicksand font-bold text-xl cursor-pointer"
+        className="absolute top-6 left-6 flex items-center gap-2 text-[#fffacd] font-quicksand font-bold text-xl cursor-pointer"
         onClick={onGoBack}
       >
         <span className="text-4xl">∿</span>
@@ -88,14 +113,15 @@ export default function PageTwo({ onGoBack }) {
         <p className="text-orange-600 font-black uppercase text-2xl">
           Upload Notes
         </p>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col items-center gap-2">
           <button
             className="bg-white px-6 py-3 rounded-md shadow font-arial text-[#737373]"
             onClick={() => fileInputRef.current.click()}
           >
             Choose File
           </button>
-          {fileName && <span className="text-black font-medium">{fileName}</span>}
+          <p className="text-s text-gray-600 font-arial">Max file size: 5MB</p>
+          {fileName && <span className="text-[#555555] font-medium font-arial">{fileName}</span>}
         </div>
         <input
           type="file"
@@ -111,7 +137,7 @@ export default function PageTwo({ onGoBack }) {
           Choose TikTok Style
         </p>
 
-        <div className="mt-4 flex gap-6 justify-center flex-wrap">
+        <div className="mt-4 flex gap-4 justify-center flex-nowrap overflow-x-auto">
           {styles.map((style) => (
             <div
               key={style.id}
@@ -125,9 +151,9 @@ export default function PageTwo({ onGoBack }) {
               <img
                 src={style.image}
                 alt={style.label}
-                className="w-20 h-20 object-cover rounded-md transition-transform duration-200 hover:scale-110"
+                className="w-32 h-32 object-cover rounded-md transition-transform duration-200 hover:scale-110"
               />
-              <p className="mt-2 text-black font-medium">{style.label}</p>
+
             </div>
           ))}
         </div>
@@ -141,10 +167,15 @@ export default function PageTwo({ onGoBack }) {
 
         <input
           placeholder="Make it sound stern"
+          maxLength={100}
           className="w-full mt-3 px-4 py-3 rounded-md bg-white border border-gray-300 font-arial placeholder:text-[#737373]"
           value={personalization}
-          onChange={(e) => setPersonalization(e.target.value)}
+          onChange={(e) => {
+            setPersonalization(e.target.value);
+            setInputLength(e.target.value.length);
+          }}
         />
+        <p className="text-s text-gray-600 font-arial mt-1"> {inputLength}/100 characters</p>
       </div>
 
       {/* Error Message */}
@@ -156,7 +187,7 @@ export default function PageTwo({ onGoBack }) {
       {/* Generate Button */}
       <div className="flex justify-center mt-6">
         <button
-          className="bg-[#0B5C66] text-white text-2xl md:text-3xl font-quicksand font-bold rounded-full px-16 py-5 shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50"
+          className="bg-[#0f606b] text-white text-2xl md:text-3xl font-quicksand font-bold rounded-full px-16 py-5 shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50"
           onClick={handleGenerate}
           disabled={loading}
         >
