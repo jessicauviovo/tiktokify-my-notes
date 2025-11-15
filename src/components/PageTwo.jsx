@@ -11,6 +11,7 @@ export default function PageTwo() {
   const [personalization, setPersonalization] = useState("");
   const [error, setError] = useState("");
   const [summary, setSummary] = useState("");
+  const [audio, setAudio] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleFileSelect = (e) => {
@@ -23,6 +24,7 @@ export default function PageTwo() {
     // Clear previous error and summary
     setError("");
     setSummary("");
+    setAudio("");
 
     if (!fileName && !selectedStyle) {
       setError("Please upload a file and select a TikTok style");
@@ -48,6 +50,7 @@ export default function PageTwo() {
 
       const data = await response.json();
       setSummary(data.summary);
+      setAudio(data.audio);
     } catch (error) {
       setError(`Failed to generate summary: ${error.message}`);
     } finally {
@@ -152,11 +155,49 @@ export default function PageTwo() {
         </button>
       </div>
 
-      {/* Summary Display */}
-      {summary && (
+      {/* Summary and Audio Display */}
+      {(summary && audio) && (
         <div className="bg-[#FFF8D9] rounded-2xl p-6 mt-6 max-w-2xl mx-auto">
           <p className="text-orange-600 font-bold uppercase text-center">Generated Your Tiktok-Style Audio! Here's some things to keep in mind:</p>
           <p className="mt-4 text-black">{summary}</p>
+
+          <div className="mt-6">
+            <p className="text-orange-600 font-bold uppercase text-center mb-4">Audio Summary</p>
+            <audio controls className="w-full mb-4">
+              <source src={`data:audio/mpeg;base64,${audio}`} type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+
+            <div className="flex gap-4 justify-center">
+              <a
+                href={`data:audio/mpeg;base64,${audio}`}
+                download="tiktok_summary_audio.mp3"
+                className="bg-[#0B5C66] text-white px-6 py-3 rounded-md shadow hover:bg-opacity-80 transition-all"
+              >
+                Download Audio
+              </a>
+              <button
+                onClick={() => {
+                  if (navigator.share && window.File) {
+                    const blob = new Blob([atob(audio)], { type: 'audio/mpeg' });
+                    const file = new File([blob], 'tiktok_summary_audio.mp3', { type: 'audio/mpeg' });
+                    navigator.share({
+                      title: 'TikTok Summary Audio',
+                      text: 'Check out this AI-generated summary audio!',
+                      files: [file]
+                    }).catch(console.error);
+                  } else {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard.writeText(`data:audio/mpeg;base64,${audio}`);
+                    alert('Audio link copied to clipboard');
+                  }
+                }}
+                className="bg-[#FF5C00] text-white px-6 py-3 rounded-md shadow hover:bg-opacity-80 transition-all"
+              >
+                Share Audio
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

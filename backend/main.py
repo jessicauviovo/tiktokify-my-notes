@@ -1,5 +1,7 @@
 import os
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+import base64
+import requests
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
 
@@ -25,6 +27,7 @@ async def upload_file(file: UploadFile = File(...), style: int = Form(...), pers
     # Save the uploaded file temporarily
     contents = await file.read()
     filename = file.filename
+    os.makedirs("uploads", exist_ok=True)
     file_path = f"uploads/{filename}"
     with open(file_path, "wb") as f:
         f.write(contents)
@@ -40,31 +43,53 @@ async def upload_file(file: UploadFile = File(...), style: int = Form(...), pers
         # Handle non-text files (e.g., PDFs would need additional libraries)
         raise HTTPException(status_code=400, detail="File must be a text file")
 
-    # Use OpenAI to summarize the notes
-    # try:
-    #     # Adjust prompt based on style (you can customize prompts per style)
-    #     style_prompts = {
-    #         1: "Summarize in an engaging, story-like TikTok style.",
-    #         2: "Summarize in a fun, energetic TikTok style.",
-    #         3: "Summarize in a quick, facts-focused TikTok style.",
-    #         4: "Summarize in a dramatic, cinematic TikTok style."
-    #     }
-    #     prompt = style_prompts.get(style, "Summarize the following notes in a TikTok style.")
-    #     if personalization:
-    #         prompt += f" Also incorporate the following extra details: {personalization}."
+    #Use OpenAI to summarize the notes
+    try:
+        # Adjust prompt based on style (you can customize prompts per style)
+        style_prompts = {
+            1: "From these notes, summarize the key points, generate a script that I will input in Text to Speech in the style of Ray William Johnson's True Crime Stories on Tiktok. The script should be for an audio less than 1 minute. Make sure to use the key points from the notes in generating the script. Don't bother adding any sound effects or editing. Just give the raw text",
+            2: "Summarize in a fun, energetic TikTok style.",
+            3: "Summarize in a quick, facts-focused TikTok style.",
+            4: "Summarize in a dramatic, cinematic TikTok style."
+        }
+        prompt = style_prompts.get(style, "Summarize the following notes in a TikTok style.")
+        if personalization:
+            prompt += f" Also incorporate the following extra details: {personalization}."
 
-    #     response = client.completions.create(
-    #         model="text-davinci-003",
-    #         prompt=f"{prompt}\n\nNotes: {file_content}\n\nSummary:",
-    #         max_tokens=300,
-    #         temperature=0.7
-    #     )
-    #     summary = response.choices[0].text.strip()
-    # except Exception as e:
-    #     raise HTTPException(status_code=500, detail=f"Error summarizing notes: {str(e)}")
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": f"{prompt}\n\nNotes: {file_content}\n\nSummary:"}],
+            max_tokens=300,
+            temperature=0.7
+        )
+        summary = response.choices[0].message.content.strip()
+        print(summary)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error summarizing notes: {str(e)}")
+    # with open("audio.txt", "r", encoding="utf-8") as f:
+    #     summary = f.read()
+    # print(summary)
 
-    # Clean up: remove the uploaded file
+    # Generate TTS audio
+    try:
+        url = "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream"
+        headers = {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": os.getenv("ELEVENLABS_API_KEY")
+        }
+        data = {
+            "text": summary,
+            "model_id": "eleven_flash_v2"
+        }
+        resp = requests.post(url, json=data, headers=headers)
+        resp.raise_for_status()
+        audio = resp.content
+        audio_b64 = base64.b64encode(audio).decode('utf-8')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating audio: {str(e)}")
+
+    #Clean up: remove the uploaded file
     os.remove(file_path)
-    summary = f"Style received: {style}, Personalization received: {personalization}"
 
-    return {"filename": filename, "style": style, "summary": summary}
+    return {"filename": filename, "style": style, "summary": summary, "audio": audio_b64}
