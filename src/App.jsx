@@ -8,7 +8,7 @@ function App() {
   return (
     <div className="min-h-screen w-full">
       {page === "page1" && <PageOne onStart={() => setPage("page2")} />}
-      {page === "page2" && <PageTwo />}
+      {page === "page2" && <PageTwo onGoBack={() => setPage("page1")} />}
     </div>
   );
 }

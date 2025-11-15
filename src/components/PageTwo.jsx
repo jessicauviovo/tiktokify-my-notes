@@ -3,8 +3,9 @@ import style1 from "../assets/style1.jpg";
 import style2 from "../assets/style2.jpg";
 import style3 from "../assets/style3.jpg";
 import style4 from "../assets/style4.jpg";
+import element3 from "../assets/element3.png";
 
-export default function PageTwo() {
+export default function PageTwo({ onGoBack }) {
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
   const [selectedStyle, setSelectedStyle] = useState(null);
@@ -58,6 +59,11 @@ export default function PageTwo() {
     }
   };
 
+  const playHoverSound = () => {
+    const audio = new Audio('/hover.mp3');
+    audio.play();
+  };
+
   const styles = [
     { id: 1, label: "Style 1", image: style1 },
     { id: 2, label: "Style 2", image: style2 },
@@ -66,22 +72,25 @@ export default function PageTwo() {
   ];
 
   return (
-    <div className="bg-[#FF5C00] min-h-screen w-full relative px-10 py-8 overflow-hidden">
+    <div className="bg-[#FF6A1A] min-h-screen w-full relative px-10 py-8 overflow-hidden font-quicksand">
 
       {/* Logo */}
-      <div className="absolute top-6 left-6 flex items-center gap-2 text-[#004E52] font-bold text-xl">
+      <div
+        className="absolute top-6 left-6 flex items-center gap-2 text-[#004E52] font-quicksand font-bold text-xl cursor-pointer"
+        onClick={onGoBack}
+      >
         <span className="text-4xl">∿</span>
-        TIKTOKIFY MY NOTES 
+        TIKTOKIFY MY NOTES
       </div>
 
       {/* Upload Notes */}
-      <div className="bg-[#FFF8D9] rounded-2xl p-6 mt-20 flex justify-between items-center max-w-2xl mx-auto">
-        <p className="text-orange-600 font-bold uppercase">
+      <div className="bg-[#fffacd] rounded-2xl p-6 mt-20 flex justify-between items-center max-w-2xl mx-auto cursor-pointer hover:scale-105 transition-all duration-300" onMouseEnter={playHoverSound}>
+        <p className="text-orange-600 font-black uppercase text-2xl">
           Upload Notes
         </p>
         <div className="flex items-center gap-4">
           <button
-            className="bg-white px-6 py-3 rounded-md shadow"
+            className="bg-white px-6 py-3 rounded-md shadow font-arial text-[#737373]"
             onClick={() => fileInputRef.current.click()}
           >
             Choose File
@@ -97,8 +106,8 @@ export default function PageTwo() {
       </div>
 
       {/* Choose TikTok Style */}
-      <div className="bg-[#FFF8D9] rounded-2xl p-6 mt-6 max-w-2xl mx-auto">
-        <p className="text-orange-600 font-bold uppercase text-left">
+      <div className="bg-[#fffacd] rounded-2xl p-6 mt-6 max-w-2xl mx-auto cursor-pointer hover:scale-105 transition-all duration-300" onMouseEnter={playHoverSound}>
+        <p className="text-orange-600 font-black uppercase text-left text-2xl">
           Choose TikTok Style
         </p>
 
@@ -125,14 +134,14 @@ export default function PageTwo() {
       </div>
 
       {/* Personalization */}
-      <div className="bg-[#FFF8D9] rounded-2xl p-6 mt-6 max-w-2xl mx-auto">
-        <p className="text-orange-600 font-bold uppercase">
+      <div className="bg-[#fffacd] rounded-2xl p-6 mt-6 max-w-2xl mx-auto cursor-pointer hover:scale-105 transition-all duration-300" onMouseEnter={playHoverSound}>
+        <p className="text-orange-600 font-black uppercase text-2xl">
           Any Extra Details?
         </p>
 
         <input
-          placeholder="Eg Make it sound stern"
-          className="w-full mt-3 px-4 py-3 rounded-md bg-white border border-gray-300"
+          placeholder="Make it sound stern"
+          className="w-full mt-3 px-4 py-3 rounded-md bg-white border border-gray-300 font-arial placeholder:text-[#737373]"
           value={personalization}
           onChange={(e) => setPersonalization(e.target.value)}
         />
@@ -147,7 +156,7 @@ export default function PageTwo() {
       {/* Generate Button */}
       <div className="flex justify-center mt-6">
         <button
-          className="bg-[#0B5C66] text-white rounded-full text-2xl px-20 py-4 shadow-lg disabled:opacity-50"
+          className="bg-[#0B5C66] text-white text-2xl md:text-3xl font-quicksand font-bold rounded-full px-16 py-5 shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50"
           onClick={handleGenerate}
           disabled={loading}
         >
@@ -157,7 +166,7 @@ export default function PageTwo() {
 
       {/* Summary and Audio Display */}
       {(summary && audio) && (
-        <div className="bg-[#FFF8D9] rounded-2xl p-6 mt-6 max-w-2xl mx-auto">
+        <div className="bg-[#fffacd] rounded-2xl p-6 mt-6 max-w-2xl mx-auto">
           <p className="text-orange-600 font-bold uppercase text-center">Generated Your Tiktok-Style Audio! Here's some things to keep in mind:</p>
           <p className="mt-4 text-black">{summary}</p>
 
@@ -200,6 +209,20 @@ export default function PageTwo() {
           </div>
         </div>
       )}
+
+      {/* Left side element */}
+      <img
+        src={element3}
+        alt="Element 3"
+        className="absolute left-4 top-1/3 transform -translate-y-1/2 w-64 h-64 object-contain"
+      />
+
+      {/* Right side element */}
+      <img
+        src={element3}
+        alt="Element 3"
+        className="absolute right-4 top-2/3 transform -translate-y-1/2 w-64 h-64 object-contain"
+      />
     </div>
   );
 }

@@ -6,6 +6,11 @@ module.exports = {
         cream: {
           50: '#FFF8E8'
         }
+      },
+      fontFamily: {
+        'motter': ['Motter Corpus', 'serif'],
+        'quicksand': ['Quicksand', 'sans-serif'],
+        'arial': ['Arial', 'sans-serif'],
       }
     }
   },
