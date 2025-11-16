@@ -10,7 +10,7 @@ from docx import Document
 
 app = FastAPI()
 
-# Allow requests from your frontend (e.g., localhost:3000)
+# Allow requests from frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -117,11 +117,11 @@ async def upload_file(file: UploadFile = File(...), style: int = Form(...), lang
         raise
     except Exception as e:
         print(f"Warning: Moderation check failed: {str(e)}")
-        # Continue anyway if moderation API fails
+        # Continue anyway if moderation API fails since we also checked for malicious content earlier
 
     #Use OpenAI to summarize the notes
     try:
-        # Adjust prompt based on style (you can customize prompts per style)
+        # Adjust prompt based on style
         style_prompts = {
             1: """You are an ASMR-style TikTok creator. Your task is to read the notes provided and create a clear, accurate summary script based ONLY on those notes.
                 Requirements
@@ -190,7 +190,7 @@ async def upload_file(file: UploadFile = File(...), style: int = Form(...), lang
         audio_generator = elevenlabs_client.text_to_speech.convert(
             voice_id=voice_id,
             text=summary,
-            model_id="eleven_multilingual_v2"
+            model_id="eleven_v3"
         )
         
         # Convert generator to bytes

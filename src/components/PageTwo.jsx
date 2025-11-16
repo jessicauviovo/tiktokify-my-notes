@@ -216,7 +216,7 @@ export default function PageTwo({ onGoBack, language }) {
   };
 
   const styles = [
-    { id: 1, label: "Soft-spoken ASMR", image: style1 },
+    { id: 1, label: "Gentle ASMR", image: style1 },
     { id: 2, label: "Bestie Facetime", image: style2 },
     { id: 3, label: "Juicy Storytime", image: style3 },
     { id: 4, label: "True Crime Story", image: style4 },
