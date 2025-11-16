@@ -3,9 +3,7 @@ import notebookImage from "../assets/home_img.png";
 
 import element2 from "../assets/element2.png";
 
-export default function PageOne({ onStart }) {
-  const [language, setLanguage] = useState("English"); // default language
-
+export default function PageOne({ onStart, language, setLanguage }) {
   const playClickSound = () => {
     const audio = new Audio('/click.mp3');
     audio.play();
@@ -28,10 +26,10 @@ export default function PageOne({ onStart }) {
             className="mt-2 px-6 py-2 text-base md:text-lg font-arial font-bold text-[#555555] border-2 border-[#555555] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#555555] bg-[#FFF8D9]"
           >
             <option value="English">English</option>
-            <option value="Spanish">Spanish</option>
-            <option value="French">French</option>
-            <option value="German">German</option>
             <option value="Chinese">Chinese</option>
+            <option value="French">French</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Spanish">Spanish</option>
           </select>
 
           <button

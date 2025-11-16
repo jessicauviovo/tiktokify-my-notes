@@ -5,12 +5,119 @@ import style3 from "../assets/style3.png";
 import style4 from "../assets/style4.png";
 import element3 from "../assets/element3.png";
 
-export default function PageTwo({ onGoBack }) {
+const translations = {
+  English: {
+    uploadNotes: "Upload Notes",
+    chooseFile: "Choose File",
+    maxSize: "Max 5MB • PDF, DOCX, TXT",
+    chooseStyle: "Choose TikTok Style",
+    generateBtn: "GENERATE",
+    generating: "GENERATING",
+    successMsg: "AUDIO GENERATED SUCCESSFULLY 🤠",
+    download: "Download",
+    share: "Share",
+    errorUploadAndStyle: "Make sure you upload your notes and select a TikTok style 🤠",
+    errorUpload: "Don't forget to upload your notes!",
+    errorStyle: "Oops, you didn't select a TikTok style...",
+    errorSize: "File size must be less than 5MB",
+    styles: {
+      1: "Soft-spoken ASMR",
+      2: "Bestie Facetime",
+      3: "Juicy Storytime",
+      4: "True Crime Story"
+    }
+  },
+  Spanish: {
+    uploadNotes: "Subir Notas",
+    chooseFile: "Elegir Archivo",
+    maxSize: "Máx 5MB • PDF, DOCX, TXT",
+    chooseStyle: "Elige Estilo TikTok",
+    generateBtn: "GENERAR",
+    generating: "GENERANDO",
+    successMsg: "AUDIO GENERADO EXITOSAMENTE 🤠",
+    download: "Descargar",
+    share: "Compartir",
+    errorUploadAndStyle: "Asegúrate de subir tus notas y seleccionar un estilo TikTok 🤠",
+    errorUpload: "¡No olvides subir tus notas!",
+    errorStyle: "Oops, no seleccionaste un estilo TikTok...",
+    errorSize: "El tamaño del archivo debe ser menor a 5MB",
+    styles: {
+      1: "ASMR Suave",
+      2: "FaceTime con Amiga",
+      3: "Historia Jugosa",
+      4: "Historia de Crimen"
+    }
+  },
+  French: {
+    uploadNotes: "Télécharger Notes",
+    chooseFile: "Choisir Fichier",
+    maxSize: "Max 5Mo • PDF, DOCX, TXT",
+    chooseStyle: "Choisir Style TikTok",
+    generateBtn: "GÉNÉRER",
+    generating: "GÉNÉRATION",
+    successMsg: "AUDIO GÉNÉRÉ AVEC SUCCÈS 🤠",
+    download: "Télécharger",
+    share: "Partager",
+    errorUploadAndStyle: "Assurez-vous de télécharger vos notes et de sélectionner un style TikTok 🤠",
+    errorUpload: "N'oubliez pas de télécharger vos notes!",
+    errorStyle: "Oups, vous n'avez pas sélectionné de style TikTok...",
+    errorSize: "La taille du fichier doit être inférieure à 5Mo",
+    styles: {
+      1: "ASMR Doux",
+      2: "FaceTime Copine",
+      3: "Histoire Captivante",
+      4: "Histoire Criminelle"
+    }
+  },
+  Hindi: {
+    uploadNotes: "नोट्स अपलोड करें",
+    chooseFile: "फ़ाइल चुनें",
+    maxSize: "अधिकतम 5MB • PDF, DOCX, TXT",
+    chooseStyle: "टिकटॉक स्टाइल चुनें",
+    generateBtn: "उत्पन्न करें",
+    generating: "उत्पन्न हो रहा है",
+    successMsg: "ऑडियो सफलतापूर्वक उत्पन्न हुआ 🤠",
+    download: "डाउनलोड",
+    share: "साझा करें",
+    errorUploadAndStyle: "सुनिश्चित करें कि आप अपने नोट्स अपलोड करें और एक टिकटॉक स्टाइल चुनें 🤠",
+    errorUpload: "अपने नोट्स अपलोड करना न भूलें!",
+    errorStyle: "ओह, आपने टिकटॉक स्टाइल नहीं चुना...",
+    errorSize: "फ़ाइल का आकार 5MB से कम होना चाहिए",
+    styles: {
+      1: "कोमल ASMR",
+      2: "बेस्टी फेसटाइम",
+      3: "रोमांचक कहानी",
+      4: "अपराध की कहानी"
+    }
+  },
+  Chinese: {
+    uploadNotes: "上传笔记",
+    chooseFile: "选择文件",
+    maxSize: "最大 5MB • PDF, DOCX, TXT",
+    chooseStyle: "选择TikTok风格",
+    generateBtn: "生成",
+    generating: "生成中",
+    successMsg: "音频生成成功 🤠",
+    download: "下载",
+    share: "分享",
+    errorUploadAndStyle: "请确保上传笔记并选择TikTok风格 🤠",
+    errorUpload: "别忘了上传你的笔记！",
+    errorStyle: "哎呀，你没有选择TikTok风格...",
+    errorSize: "文件大小必须小于5MB",
+    styles: {
+      1: "轻声ASMR",
+      2: "闺蜜视频通话",
+      3: "精彩故事",
+      4: "真实犯罪故事"
+    }
+  }
+};
+
+export default function PageTwo({ onGoBack, language }) {
+  const t = translations[language] || translations.English;
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
   const [selectedStyle, setSelectedStyle] = useState(null);
-  const [personalization, setPersonalization] = useState("");
-  const [inputLength, setInputLength] = useState(0);
   const [error, setError] = useState("");
   const [summary, setSummary] = useState("");
   const [audio, setAudio] = useState("");
@@ -20,7 +127,7 @@ export default function PageTwo({ onGoBack }) {
     if (e.target.files.length > 0) {
       const file = e.target.files[0];
       if (file.size > 5 * 1024 * 1024) {
-        setError("File size must be less than 5MB");
+        setError(t.errorSize);
         setFileName("");
         return;
       }
@@ -43,17 +150,17 @@ export default function PageTwo({ onGoBack }) {
     setAudio("");
 
     if (!fileName && !selectedStyle) {
-      setError("Make sure you upload your notes and select a TikTok style 🤠");
+      setError(t.errorUploadAndStyle);
       return;
     }
 
     if(!fileName) {
-      setError("Don't forget to upload your notes!");
+      setError(t.errorUpload);
       return;
     }
 
     if(!selectedStyle) {
-      setError("Oops, you didn't select a TikTok style...");
+      setError(t.errorStyle);
       return;
     }
 
@@ -63,7 +170,7 @@ export default function PageTwo({ onGoBack }) {
       const formData = new FormData();
       formData.append("file", fileInputRef.current.files[0]);
       formData.append("style", selectedStyle);
-      formData.append("personalization", personalization);
+      formData.append("language", language);
 
       const response = await fetch("http://localhost:8000/upload", {
         method: "POST",
@@ -101,7 +208,7 @@ export default function PageTwo({ onGoBack }) {
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
           <p className="text-white text-4xl font-quicksand font-bold">
-            GENERATING
+            {t.generating.toUpperCase()}
             <span className="inline-block animate-bounce">.</span>
             <span className="inline-block animate-bounce" style={{animationDelay: '0.2s'}}>.</span>
             <span className="inline-block animate-bounce" style={{animationDelay: '0.4s'}}>.</span>
@@ -121,16 +228,16 @@ export default function PageTwo({ onGoBack }) {
       {/* Upload Notes */}
       <div className="bg-[#fffacd] rounded-2xl p-6 mt-20 flex justify-between items-center max-w-2xl mx-auto cursor-pointer hover:scale-105 transition-all duration-300" onMouseEnter={playHoverSound}>
         <p className="text-orange-600 font-black uppercase text-2xl">
-          Upload Notes
+          {t.uploadNotes}
         </p>
         <div className="flex flex-col items-center gap-2">
           <button
             className="bg-white px-6 py-3 rounded-md shadow font-arial text-[#737373]"
             onClick={() => fileInputRef.current.click()}
           >
-            Choose File
+            {t.chooseFile}
           </button>
-          <p className="text-xs text-gray-600 font-arial">Max 5MB • PDF, DOCX, TXT</p>
+          <p className="text-xs text-gray-600 font-arial">{t.maxSize}</p>
           {fileName && <span className="text-[#555555] font-medium font-arial">{fileName}</span>}
         </div>
         <input
@@ -145,7 +252,7 @@ export default function PageTwo({ onGoBack }) {
       {/* Choose TikTok Style */}
       <div className="bg-[#fffacd] rounded-2xl p-6 mt-6 max-w-2xl mx-auto cursor-pointer hover:scale-105 transition-all duration-300" onMouseEnter={playHoverSound}>
         <p className="text-orange-600 font-black uppercase text-left text-2xl">
-          Choose TikTok Style
+          {t.chooseStyle}
         </p>
 
         <div className="mt-4 flex gap-4 justify-center flex-nowrap overflow-x-auto">
@@ -164,29 +271,12 @@ export default function PageTwo({ onGoBack }) {
                 alt={style.label}
                 className="w-32 h-32 object-cover rounded-md transition-all duration-200 hover:scale-110 hover:shadow-[0_0_30px_rgba(255,200,0,1)]"
               />
-
+              <p className="mt-2 text-sm font-bold text-[#555555] text-center">
+                {t.styles[style.id]}
+              </p>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Personalization */}
-      <div className="bg-[#fffacd] rounded-2xl p-6 mt-6 max-w-2xl mx-auto cursor-pointer hover:scale-105 transition-all duration-300" onMouseEnter={playHoverSound}>
-        <p className="text-orange-600 font-black uppercase text-2xl">
-          Any Extra Details?
-        </p>
-
-        <input
-          placeholder="Make it sound stern"
-          maxLength={100}
-          className="w-full mt-3 px-4 py-3 rounded-md bg-white border border-gray-300 font-arial placeholder:text-[#737373]"
-          value={personalization}
-          onChange={(e) => {
-            setPersonalization(e.target.value);
-            setInputLength(e.target.value.length);
-          }}
-        />
-        <p className="text-s text-gray-600 font-arial mt-1"> {inputLength}/100 characters</p>
       </div>
 
       {/* Error Message */}
@@ -202,15 +292,14 @@ export default function PageTwo({ onGoBack }) {
           onClick={handleGenerate}
           disabled={loading}
         >
-          {loading ? "GENERATING..." : "GENERATE"}
+          {loading ? t.generating.toUpperCase() + "..." : t.generateBtn}
         </button>
       </div>
 
       {/* Summary and Audio Display */}
       {(summary && audio) && (
         <div ref={() => setTimeout(() => document.querySelector('.summary-section')?.scrollIntoView({behavior: 'smooth'}), 100)} className="max-w-2xl mx-auto mt-6 summary-section">
-          <p className="text-white font-bold uppercase text-center">AUDIO GENERATED SUCCESSFULLY 🤠 </p>
-          <p className="mt-4 text-black px-10">{summary}</p>
+          <p className="text-white font-bold uppercase text-center">{t.successMsg}</p>
 
           <div className="mt-6">
 
@@ -222,16 +311,16 @@ export default function PageTwo({ onGoBack }) {
             <div className="flex gap-4 justify-center mb-8">
               <a
                 href={`data:audio/mpeg;base64,${audio}`}
-                download="tiktok_summary_audio.mp3"
+                download="tiktokify_audio.mp3"
                 className="bg-[#FFFFFF] text-[#555555] font-arial px-6 py-3 rounded-md shadow hover:bg-opacity-80 transition-all"
               >
-                <span>📥  </span>Download
+                <span>📥  </span>{t.download}
               </a>
               <button
                 onClick={() => {
                   if (navigator.share && window.File) {
                     const blob = new Blob([atob(audio)], { type: 'audio/mpeg' });
-                    const file = new File([blob], 'tiktok_summary_audio.mp3', { type: 'audio/mpeg' });
+                    const file = new File([blob], 'tiktokify_audio.mp3', { type: 'audio/mpeg' });
                     navigator.share({
                       title: 'TikTok Summary Audio',
                       text: 'Check out this AI-generated summary audio!',
@@ -245,7 +334,7 @@ export default function PageTwo({ onGoBack }) {
                 }}
                 className="bg-[#FFFFFF] text-[#555555] font-arial px-6 py-3 rounded-md shadow hover:bg-opacity-80 transition-all"
               >
-                <span>🔗 </span> Share
+                <span>🔗 </span>{t.share}
               </button>
             </div>
           </div>

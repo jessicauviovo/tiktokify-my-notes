@@ -26,7 +26,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 elevenlabs.set_api_key(os.getenv("ELEVENLABS_API_KEY"))
 
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...), style: int = Form(...), personalization: str = Form(None)):
+async def upload_file(file: UploadFile = File(...), style: int = Form(...), language: str = Form("English")):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No notes provided")
 
@@ -81,21 +81,18 @@ async def upload_file(file: UploadFile = File(...), style: int = Form(...), pers
     # Remove control characters (except newlines, tabs, carriage returns)
     file_content = ''.join(char for char in file_content if ord(char) >= 32 or char in '\n\t\r')
     
-    # Print extracted file content to terminal
-    print("=" * 50)
-    print("EXTRACTED FILE CONTENT:")
-    print("=" * 50)
-    print(file_content[:1000])  # Print first 1000 chars only
-    if len(file_content) > 1000:
-        print(f"... (truncated, total length: {len(file_content)} characters)")
-    print("=" * 50)
+    # # Print extracted file content to terminal
+    # print("=" * 50)
+    # print("EXTRACTED FILE CONTENT:")
+    # print("=" * 50)
+    # print(file_content[:1000])  # Print first 1000 chars only
+    # if len(file_content) > 1000:
+    #     print(f"... (truncated, total length: {len(file_content)} characters)")
+    # print("=" * 50)
 
-    # Use OpenAI moderation to check for harmful content in notes and personalization
+    # Use OpenAI moderation to check for harmful content in notes
     try:
-        # Combine notes and personalization for moderation
         content_to_moderate = file_content[:32000]
-        if personalization:
-            content_to_moderate += f"\n\nPersonalization: {personalization}"
         
         moderation_response = client.moderations.create(
             model="omni-moderation-latest",
@@ -139,7 +136,7 @@ async def upload_file(file: UploadFile = File(...), style: int = Form(...), pers
                 Restrictions: Do not include sound effects, actions, emojis. Only output the spoken script — no labels like "Narrator:". Do not invent facts
                 Goal: make the summary feel like a fun FaceTime catch-up while staying accurate to the notes and embedding audio tags .
                 Length: Keep the length at 110-130 words or less""",
-            3: """Imagine you are a storyteller creating viral Tiktok storytime videos. I give you the notes attached as input, and I want you to summarize them and create a script in a dramatic, cinematic storytime style. Make it engaging, like a story that hooks the listener, but only includes the key points from the notes.
+            3: """Imagine you are a storyteller creating viral Tiktok storytime videos. I give you the notes attached as input, and I want you to summarize them and create a script in a dramatic, cinematic storytime style. Make it engaging, like a story that hooks the listener, but only includes the key points from the notes. Start off with a phrase like - get ready with me while I tell you about...
                 Requirements
                 Tone: dramatic, cinematic, engaging storytime style.
                 Audio Tags: Use ElevenLabs audio tags to enhance the delivery naturally and bring the script to life. Include situational cues ([WHISPER], [SIGH]), emotional context ([excited], [tired]), narrative pacing ([pause], [dramatic tone]), delivery control ([rushed], [drawn out]), character or accent shifts ([pirate voice], [British accent]), or multi-character dialogue ([interrupting], [overlapping]) where appropriate. Make sure all tags fit the tone, style, and flow of the script.
@@ -158,22 +155,20 @@ async def upload_file(file: UploadFile = File(...), style: int = Form(...), pers
                 Length: Keep the length at 110-130 words or less"""
         }
         prompt = style_prompts.get(style, "Summarize the following notes in a TikTok style.")
-        if personalization:
-            prompt += f" Also incorporate the following extra details: {personalization}."
+        
+        # Add language instruction
+        language_instruction = f"\n\nIMPORTANT: Generate the entire summary script in {language}. The script must be in {language} language only."
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[{"role": "user", "content": f"{prompt}\n\nNotes: {file_content}\n\nSummary:"}],
+            messages=[{"role": "user", "content": f"{prompt}{language_instruction}\n\nNotes: {file_content}\n\nSummary:"}],
             max_tokens=300,
             temperature=0.7
         )
         summary = response.choices[0].message.content.strip()
-        print(summary)
+        # print(summary)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Something went wrong while generating the audio. Details - {str(e)}")
-    # with open("audio.txt", "r", encoding="utf-8") as f:
-    #     summary = f.read()
-    # print(summary)
 
     # Generate TTS audio with style-specific voices
     # Map styles to ElevenLabs voice IDs
@@ -201,5 +196,4 @@ async def upload_file(file: UploadFile = File(...), style: int = Form(...), pers
     #Clean up: remove the uploaded file
     os.remove(file_path)
 
-    #Update summary to give report of what they were able to do with criteria given - how well it worked
     return {"filename": filename, "style": style, "summary": summary, "audio": audio_b64}
