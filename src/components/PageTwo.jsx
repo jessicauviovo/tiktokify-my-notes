@@ -185,7 +185,15 @@ export default function PageTwo({ onGoBack, language }) {
       clearTimeout(timeoutId); // Clear timeout if request succeeds
 
       if (!response.ok) {
-        throw new Error(`Error 🫤: ${response.statusText}`);
+        // Try to get error details from response
+        let errorMessage = response.statusText;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail || errorMessage;
+        } catch (e) {
+          // If response isn't JSON, keep the statusText
+        }
+        throw new Error(`Backend Error: ${errorMessage}`);
       }
 
       const data = await response.json();
