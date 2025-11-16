@@ -20,6 +20,7 @@ const translations = {
     errorUpload: "Don't forget to upload your notes!",
     errorStyle: "Oops, you didn't select a TikTok style...",
     errorSize: "File size must be less than 5MB",
+    errorTimeout: "Request timed out after 30 seconds. Please try again 🤠",
     styles: {
       1: "Gentle ASMR",
       2: "Bestie Facetime",
@@ -41,6 +42,7 @@ const translations = {
     errorUpload: "¡No olvides subir tus notas!",
     errorStyle: "Oops, no seleccionaste un estilo TikTok...",
     errorSize: "El tamaño del archivo debe ser menor a 5MB",
+    errorTimeout: "Solicitud agotó el tiempo después de 30 segundos. Por favor, inténtalo de nuevo 🤠",
     styles: {
       1: "ASMR Suave",
       2: "FaceTime con Amiga",
@@ -62,6 +64,7 @@ const translations = {
     errorUpload: "N'oubliez pas de télécharger vos notes!",
     errorStyle: "Oups, vous n'avez pas sélectionné de style TikTok...",
     errorSize: "La taille du fichier doit être inférieure à 5Mo",
+    errorTimeout: "La requête a expiré après 30 secondes. Veuillez réessayer 🤠",
     styles: {
       1: "ASMR Doux",
       2: "FaceTime Copine",
@@ -83,6 +86,7 @@ const translations = {
     errorUpload: "अपने नोट्स अपलोड करना न भूलें!",
     errorStyle: "ओह, आपने टिकटॉक स्टाइल नहीं चुना...",
     errorSize: "फ़ाइल का आकार 5MB से कम होना चाहिए",
+    errorTimeout: "अनुरोध 30 सेकंड के बाद समय समाप्त हो गया। कृपया पुनः प्रयास करें 🤠",
     styles: {
       1: "कोमल ASMR",
       2: "बेस्टी फेसटाइम",
@@ -104,6 +108,7 @@ const translations = {
     errorUpload: "别忘了上传你的笔记！",
     errorStyle: "哎呀，你没有选择TikTok风格...",
     errorSize: "文件大小必须小于5MB",
+    errorTimeout: "请求在30秒后超时。请重试 🤠",
     styles: {
       1: "轻声ASMR",
       2: "闺蜜视频通话",
@@ -201,7 +206,7 @@ export default function PageTwo({ onGoBack, language }) {
       setAudio(data.audio);
     } catch (error) {
       if (error.name === 'AbortError') {
-        setError('Request timed out after 30 seconds. Please try again 🤠');
+        setError(t.errorTimeout);
       } else {
         setError(`Oops, there was a processing error. Details: ${error.message}`);
       }
