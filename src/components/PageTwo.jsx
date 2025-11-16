@@ -172,10 +172,17 @@ export default function PageTwo({ onGoBack, language }) {
       formData.append("style", selectedStyle);
       formData.append("language", language);
 
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch("https://tiktokify-my-notes.onrender.com/upload", {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId); // Clear timeout if request succeeds
 
       if (!response.ok) {
         throw new Error(`Error 🫤: ${response.statusText}`);
@@ -185,7 +192,11 @@ export default function PageTwo({ onGoBack, language }) {
       setSummary(data.summary);
       setAudio(data.audio);
     } catch (error) {
-      setError(`Oops, there was a processing error. Details: ${error.message}`);
+      if (error.name === 'AbortError') {
+        setError('Request timed out after 30 seconds. Please try again 🤠');
+      } else {
+        setError(`Oops, there was a processing error. Details: ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
