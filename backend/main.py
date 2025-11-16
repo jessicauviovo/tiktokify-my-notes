@@ -4,7 +4,7 @@ import requests
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
-import elevenlabs
+from elevenlabs import ElevenLabs
 import PyPDF2
 from docx import Document
 
@@ -22,8 +22,8 @@ app.add_middleware(
 # Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Set ElevenLabs API key
-elevenlabs.set_api_key(os.getenv("ELEVENLABS_API_KEY"))
+# Initialize ElevenLabs client
+elevenlabs_client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...), style: int = Form(...), language: str = Form("English")):
@@ -183,12 +183,14 @@ async def upload_file(file: UploadFile = File(...), style: int = Form(...), lang
     
     try:
         # Use ElevenLabs SDK to generate audio
-        audio_bytes = elevenlabs.generate(
+        audio_generator = elevenlabs_client.generate(
             text=summary,
             voice=voice_id,
-            model="eleven_v3"
+            model="eleven_multilingual_v2"
         )
         
+        # Convert generator to bytes
+        audio_bytes = b"".join(audio_generator)
         audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Something went wrong while generating the audio. Details - {str(e)}")
